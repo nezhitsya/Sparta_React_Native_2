@@ -74,7 +74,9 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
     nvm use 12.20.1
     ```
 
-## 05. [Expo 프로젝트 생성](https://github.com/nezhitsya/Sparta_React_Native/blob/master/week%2002/README.md) & Expo 명령어
+## 05. Expo 프로젝트 생성 & Expo 명령어
+
+> [참고](https://github.com/nezhitsya/Sparta_React_Native/blob/master/week%2002/README.md)
 
 **Expo 명령어 도구 설치**
 
@@ -312,3 +314,457 @@ const styles = StyleSheet.create({
   ```
 
 ## 09. JSX 주요 태그와 속성 02
+
+**< TouchableOpacity />**
+
+- Button 엘리먼트는 본인의 영역 보유 > 각각의 스타일 고려
+- 스타일을 따로 주지 않는 이상, 화면에 영향을 주지 않는 고유의 영역을 갖도록 TouchableOpacity 엘리먼트 사용
+
+```javascript
+export default function App() {
+  const customAlert = (title = "기본값") => {
+    console.log(title);
+    if (title) {
+      Alert.alert(title);
+    } else {
+      Alert.alert("TouchableOpacity에도 onPress 속성이 있습니다");
+    }
+  };
+
+  const customAlert2 = () => {
+    Alert.alert(
+      "함수이름을 onPress에 바로 사용할땐 아무것도 넘겨도 함수에서 받는 파라미터에도 아무것도 있으면 안되요!"
+    );
+  };
+  return (
+    <ScrollView style={styles.container}>
+      <TouchableOpacity
+        style={styles.textContainer}
+        onPress={() => {
+          customAlert("값을 함수로 전달");
+        }}>
+        <Text style={styles.textStyle}>텍스트 버튼</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.textContainer}
+        onPress={() => customAlert()}>
+        <Text style={styles.textStyle}>텍스트 버튼</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.textContainer} onPress={customAlert2}>
+        <Text style={styles.textStyle}>텍스트 버튼</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+```
+
+```javascript
+// 정의한 함수에 데이터를 넘길 경우
+onPress={() => { customAlert('값을 함수로 넘겨줄 수도 있습니다.'); }}
+
+onPress={() => customAlert()}
+
+// 데이터를 넘기지 않고 함수만 실행시킬 경우
+onPress={customAlert2}
+```
+
+**< Image >**
+
+- assets 폴더에 있는 이미지를 가져와서 사용하는 방법 (import)
+
+```javascript
+import favicon from "./assets/favicon.png";
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image source={favicon} resizeMode={"repeat"} style={styles.imageStyle} />
+    </View>
+  );
+}
+```
+
+- 외부 이미지 링크를 넣어 사용하는 방식 (url)
+
+```javascript
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Image
+        source={{
+          uri: "https://images.unsplash.com/photo-1424819827928-55f0c8497861?fit=crop&w=600&h=600%27",
+        }}
+        resizeMode={"cover"}
+        style={styles.imageStyle}
+      />
+    </View>
+  );
+}
+```
+
+**다양한 태그 사용법 - [Expo 공식 문서](https://docs.expo.io/versions/latest/react-native/image/)**
+
+## 10. StyleSheet
+
+- StyleSheet는 객체 (딕셔너리)를 만드는 방식
+- styles 속성에 styles 객체 container 키를 연결하여 스타일 부여
+  `<View style={styles.container}>`
+- margin (밖 여백)과 padding (안 여백)은 영역의 안과 밖에 여백을 결정
+- [스타일 공식 문서](https://reactnative.dev/docs/style#docsNav)
+- [스타일 공식 문서](https://reactnative.dev/docs/layout-props)
+- 자주 사용하는 StyleSheet 문법 & 속성
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    //영역을 잡는 속성입니다. 따로 자세히 다룹니다.
+    //flex: 1은 전체 화면을 가져간다는 뜻입니다
+    flex: 1,
+    //영역의 배경 색을 결정합니다
+    backgroundColor: "#fff",
+    //아래 두 속성은 영역 안의 컨텐츠들의 배치를 결정합니다.
+    //flex를 자세히 다룰때 같이 자세히 다룹니다
+    justifyContent: "center",
+    alignContent: "center",
+  },
+  textContainer: {
+    //영역의 바깥 공간 이격을 뜻합니다(하단 이미지 참조)
+    margin: 10,
+    //영역 안의 컨텐츠 이격 공간을 뜻합니다(하단 이미지 참조)
+    padding: 10,
+    //테두리의 구부러짐을 결정합니다. 지금 보면 조금 둥글죠?
+    borderRadius: 10,
+    //테두리의 두께를 결정합니다
+    borderWidth: 2,
+    //테두리 색을 결정합니다
+    borderColor: "#000",
+    //테두리 스타일을 결정합니다. 실선은 solid 입니다
+    borderStyle: "dotted",
+  },
+  textStyle: {
+    //글자 색을 결정합니다. rgb, 값 이름, 색상코드 모두 가능합니다
+    color: "red",
+    //글자의 크기를 결정합니다
+    fontSize: 20,
+    //글자의 두께를 결정합니다
+    fontWeight: "700",
+    //가로기준으로 글자의 위치를 결정합니다
+    textAlign: "center",
+  },
+});
+```
+
+**한 태그에 여러 개의 스타일 부여**
+
+- 리스트 자료형으로 값 전달
+
+```javascript
+<Text style={[styles.BlueText, styles.BigText, styles.CenterText]}>이다영</Text>
+```
+
+## 11. 화면 구역 나누는 Flex
+
+> [참고](https://github.com/nezhitsya/Sparta_React_Native/tree/master/week%2002)
+
+**flex**
+
+- 영역을 차지하는 속성
+- 상대적인 개념
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerOne: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  containerTwo: {
+    flex: 2,
+    backgroundColor: "lightgray",
+  },
+});
+```
+
+**flexDirection**
+
+- 자리 잡은 영역의 방향
+- row : 가로 | column : 세로 | (기본 값은 column)
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerOne: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  containerTwo: {
+    flex: 2,
+    flexDirection: "row",
+    backgroundColor: "black",
+    padding: 5,
+  },
+  innerOne: {
+    flex: 1,
+    backgroundColor: "yellow",
+  },
+  innerTwo: {
+    flex: 4,
+    backgroundColor: "orange",
+  },
+});
+```
+
+**justifyContent**
+
+- flexDirection과 동일한 방향으로 정렬하는 속성
+- column : 상하 정렬
+- row : 좌우 정렬
+- flex-start, center, flex-end, space-between, space-around 속성 보유
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerOne: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  containerTwo: {
+    flex: 2,
+    flexDirection: "row",
+    backgroundColor: "black",
+    padding: 5,
+  },
+  innerOne: {
+    flex: 1,
+    backgroundColor: "yellow",
+  },
+  innerTwo: {
+    flex: 4,
+    justifyContent: "flex-start",
+    backgroundColor: "orange",
+  },
+});
+```
+
+**flex** **flexDirection** **justifyContent**
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149883636-dc69b7b6-2cbe-4dd9-8ad5-d196b49270ed.png">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149884141-9857a15d-2f84-4334-9cac-9ae9a3564c10.png">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149884575-5a2e55f8-4de8-4f9d-94b1-80f81879714c.png">
+</p>
+
+**alignItems**
+
+- flexDirecton과 반대 방향 (수직 방향)으로 정렬
+- column : 좌우 정렬
+- row : 상하 정렬
+- flex-start, center, flex-end, stretch 속성 보유
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerOne: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  containerTwo: {
+    flex: 2,
+    flexDirection: "row",
+    backgroundColor: "black",
+  },
+  innerOne: {
+    flex: 1,
+    backgroundColor: "yellow",
+  },
+  innerTwo: {
+    flex: 4,
+    backgroundColor: "orange",
+    alignItems: "flex-end",
+  },
+  content: {
+    width: 50,
+    height: 50,
+    backgroundColor: "lightblue",
+  },
+});
+```
+
+**alignSelf**
+
+- 부모 태그가 Flex가 쓰여 레이아웃 결정 영역 안에 있다면 내부 자식 태그는 alignSelf를 사용하여 간단하게 가운데 정렬 가능
+
+```javascript
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerOne: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  containerTwo: {
+    flex: 2,
+    flexDirection: "row",
+    backgroundColor: "black",
+  },
+  innerOne: {
+    flex: 1,
+    backgroundColor: "yellow",
+  },
+  innerTwo: {
+    flex: 4,
+    backgroundColor: "orange",
+    alignItems: "flex-end",
+  },
+  content: {
+    width: 50,
+    height: 50,
+    backgroundColor: "lightblue",
+    alignSelf: "center",
+  },
+});
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149884975-27e84568-d592-4d9b-9c11-26896713d0b5.png">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149885218-6e72e09a-4f1f-4a81-bdfb-a2ddf31cbb2e.png">
+</p>
+
+## 12. 컴포넌트 이해 & props (속성) 활용
+
+- 리액트 (React.js) 라이브러리 기반 프레임워크로 리액트 구조와 유사
+
+**컴포넌트 (Component)**
+
+- 정해진 엘리먼트 (요소)를 사용하여 만든 화면의 일부분
+- UI의 요소 하나하나를 재사용 가능한 부분으로 조각내어 운영하는 기법
+  `App.js == App 컴포넌트`
+
+**상태 (State)**
+
+- 컴포넌트에서 데이터를 유지하고 관리하기 위한 유일한 방법
+- 사용할 데이터
+
+**속성 (Props)**
+
+- 상위 컴포넌트에서 하위 컴포넌트로 데이터를 전달하는 방식
+- 데이터 전달
+
+**useEffect**
+
+- 화면에 컴포넌트가 그려지면 처음 실행해야 하는 함수들을 모아두는 곳
+
+**App.jsx**
+
+```javascript
+import React from "react";
+import { StyleSheet, View, Text, Alert } from "react-native";
+import PopupButton from "./components/PopupButton";
+
+export default function App() {
+  const CustomAlert = () => {
+    Alert.alert("Main page pop up!");
+  };
+
+  return (
+    <View style={styles.contianer}>
+      <Text> Main Page </Text>
+
+      <PopupButton CustomAlert={CustomAlert} title={"Main Page"} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  contianer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+```
+
+**PopupButton.jsx**
+
+```javascript
+import React from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+
+export default function PopupButton({ CustomAlert, title }) {
+  return (
+    <View>
+      <TouchableOpacity onPress={CustomAlert}>
+        <Text>{title} Pop Up Button</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({});
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149889507-11d7023a-d5f3-48c7-b443-0c7ab41dda35.png">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149889525-91d43dbf-34f5-4fee-b0bd-d4964b739aa1.png">
+</p>
+
+## 13. data.json & useEffect
+
+**App.jsx**
+
+```javascript
+import React from "react";
+import { StyleSheet, ScrollView, View, Text } from "react-native";
+import data from "./data.json";
+
+export default function App() {
+  return (
+    <ScrollView contentContainerStyle={styles.contianer}>
+      {data.diary.map((content, i) => {
+        return (
+          <View>
+            <Text>{content.title}</Text>
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  contianer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149890165-ac6ef54f-723c-40f0-ad14-5a4b4602d632.png">
+</p>
+
+- 데이터를 리스트로 스크롤 -> ScrollView
+- ScrollView에서 flex 사용 시 contentContainerStyle 속성에 스타일 이름 연결
+- JSX 문법 안에서 자바스크립트 문법 사용 시 {} dksdptj tkdyd
+- JSX 문법 안에서 반복문 사용 시 map 함수를 리스트에 연결시켜 사용
+- 상단에서 data.json을 불러온 후 실제 사용할 리스트 값이 담긴 키 값을 map 함수에 연결
+- 반복문 사용 시 map 함수 두 번째 인자로 받게 되는 인덱싱 i를 반복문 대상 태그에 `key = {i}`로 key 속성으로 연결
+- 반복문에서 데이터 추출 시 리스트처럼 (content[0].title)이 아닌 content.title처럼 사용
+- 반복문 매 순간마다 딕셔너리 하나씩 사용하듯이 사용
+
+**상태 (State, useState)**
+
+- 컴포넌트마다 데이터 보유 관리 가능
+- 리액트에서는 컴포넌트에서 보유 / 관리되는 데이터를 `상태`라고 일컫음
+  `UI = component(state)`
+- UI (사용자 화면)은 컴포넌트 (component)에 어떤 데이터 (state)가 주입되고 변경되냐에 따라 변화
