@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
 
 - 줄바꿈
 
-  - { ` ` } 안에 줄바꿈 포함 글 작성
+  - { `` } 안에 줄바꿈 포함 글 작성
 
   ```javascript
   <View style={styles.container}>
