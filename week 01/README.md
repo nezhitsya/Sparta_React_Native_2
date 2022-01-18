@@ -147,5 +147,168 @@ expo start
 
 - App.jsx는 JSX 문법으로 그려져 준비된 화면 반환
 - return은 작성한 JSX 문법으로 구성된 화면을 앱상에 보여주는 역할 = **렌더링 (rendering)**
-- <View>, <Text>와 같이 꺽쇠 (태그) 로 작성된 문법은 JSX라 부르는 화면을 그리는 문법
-- <View> </View>와 같이 닫는 태그로 온전히 화면의 한 영역 구성 시 엘리먼트라 일컫음
+- <> 꺽쇠 (태그) 로 작성된 문법은 JSX라 부르는 화면을 그리는 문법
+- <> </>와 같이 닫는 태그로 온전히 화면의 한 영역 구성 시 **엘리먼트**라 일컫음
+
+**1. 모든 태그는 가져와서 사용**
+
+- View, Text 문법은 임의의 태그가 아닌 리액트 네이티브에서 제공하는 태그 문법 - [공식 사용 설명서](https://docs.expo.io/versions/v38.0.0/react-native/view/)
+
+```
+import { StyleSheet, Text, View } from 'react-native';
+```
+
+**2. 태그는 항상 닫는 태그와 자체적으로 닫는 태그 구분 사용**
+
+- [리액트 네이티브 공식 문서](https://reactnative.dev/docs/view)
+- [Expo 공식 문서](https://docs.expo.io/versions/v38.0.0/react-native/view/)
+
+**3. 모든 엘리먼트는 감싸는 최상위 엘리먼트 존재 (엘리먼트 == 태그)**
+
+```javascript
+<View>
+  <Text>Open up App.js to start working on your app!</Text>
+  <StatusBar style="auto" />
+</View>
+```
+
+- 감싸는 엘리먼트 없이 진행해야 할 경우 의미없는 엘리먼트 <> </>로 감싸서 진행
+
+```javascript
+<>
+  <View>
+    <Text>Open up App.js to start working on your app!</Text>
+  </View>
+  <StatusBar style="auto" />
+</>
+```
+
+**4. return에 의해 렌더링 시 항상 소괄호로 감싸져야 한다**
+
+**5. JSX 문법 밖과 안의 주석은 다르다**
+
+```javascript
+export default function App() {
+  //JSX밖에서의 주석
+  return (
+    //JSX 밖에서의 주석
+    <View style={styles.container}>
+      {/*
+		JSX 문법 안에서의 주석
+	  */}
+      <Text>Open up App.js to start working on your app!</Text>
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+```
+
+## 08. JSX 주요 태그와 속성 01
+
+**< View >** **</ View >**
+
+- 화면의 영역 (레이아웃)을 잡아주는 엘리먼트
+- View 엘리먼트로 화면 분할 가능 but StyleSheet를 활용해 **Flex** 사용
+
+```javascript
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <View style={styles.subContainerOne}></View>
+      <View style={styles.subContainerTwo}></View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  subContainerOne: {
+    flex: 1,
+    backgroundColor: "yellow",
+  },
+  subContainerTwo: {
+    flex: 1,
+    backgroundColor: "green",
+  },
+});
+```
+
+**< Text >**
+
+- 앱에 글을 작성하기 위해 사용하는 엘리먼트
+
+```javascript
+<View style={styles.container}>
+  <Text>
+    그날이 오면 그날이 오며는 삼각산(三角山)이 일어나 더덩실 춤이라도 추고,
+    한강(漢江)물이 뒤집혀 용솟음칠 그날이, 이 목숨이 끊기기 전에 와주기만 할
+    양이면 나는 밤하늘에 날으는 까마귀와 같이 종로(鐘路)의 인경을 머리로
+    들이받아 울리오리다. 두개골은 깨어져 산산조각이 나도 기뻐서 죽사오매 오히려
+    무슨 한(恨)이 남으오리까.
+  </Text>
+</View>
+```
+
+- 줄바꿈
+
+  - { ` ` } 안에 줄바꿈 포함 글 작성
+
+  ```javascript
+  <View style={styles.container}>
+    <Text>
+      {`그날이 오면 그날이 오며는
+      삼각산(三角山)이 일어나 더덩실 춤이라도 추고,
+      한강(漢江)물이 뒤집혀 용솟음칠 그날이,
+      이 목숨이 끊기기 전에 와주기만 할 양이면
+      나는 밤하늘에 날으는 까마귀와 같이
+      종로(鐘路)의 인경을 머리로 들이받아 울리오리다.
+      두개골은 깨어져 산산조각이 나도
+      기뻐서 죽사오매 오히려 무슨 한(恨)이 남으오리까. `}
+    </Text>
+  </View>
+  ```
+
+  - 특정 부분만 띄우고 싶다면 {"\n"} 표현식을 사용해서 구현
+
+  ```javascript
+  <View style={styles.container}>
+    <Text>
+      그날이 오면 그날이 오며는{"\n"}
+      삼각산(三角山)이 일어나 더덩실 춤이라도 추고,{"\n"}
+      한강(漢江)물이 뒤집혀 용솟음칠 그날이,{"\n"}이 목숨이 끊기기 전에 와주기만
+      할 양이면{"\n"}
+      나는 밤하늘에 날으는 까마귀와 같이{"\n"}
+      종로(鐘路)의 인경을 머리로 들이받아 울리오리다.{"\n"}
+      두개골은 깨어져 산산조각이 나도{"\n"}
+      기뻐서 죽사오매 오히려 무슨 한(恨)이 남으오리까.{"\n"}
+    </Text>
+  </View>
+  ```
+
+- 말줄임표
+
+  - numberOfLines 속성을 사용하여 긴 글에서 몇 줄만 보이게 할지 결정 가능
+
+  ```javascript
+  <View style={styles.container}>
+    <Text numberOfLines={3}>
+      그날이 오면 그날이 오며는{"\n"}
+      삼각산(三角山)이 일어나 더덩실 춤이라도 추고,{"\n"}
+      한강(漢江)물이 뒤집혀 용솟음칠 그날이,{"\n"}이 목숨이 끊기기 전에 와주기만
+      할 양이면{"\n"}
+      나는 밤하늘에 날으는 까마귀와 같이{"\n"}
+      종로(鐘路)의 인경을 머리로 들이받아 울리오리다.{"\n"}
+      두개골은 깨어져 산산조각이 나도{"\n"}
+      기뻐서 죽사오매 오히려 무슨 한(恨)이 남으오리까.{"\n"}
+    </Text>
+  </View>
+  ```
+
+## 09. JSX 주요 태그와 속성 02
