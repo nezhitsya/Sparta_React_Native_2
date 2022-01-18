@@ -765,6 +765,6 @@ const styles = StyleSheet.create({
 **상태 (State, useState)**
 
 - 컴포넌트마다 데이터 보유 관리 가능
-- 리액트에서는 컴포넌트에서 보유 / 관리되는 데이터를 `상태`라고 일컫음
+- 리액트에서는 컴포넌트에서 보유 / 관리되는 데이터를 `상태`라고 일컫음 <br>
   `UI = component(state)`
 - UI (사용자 화면)은 컴포넌트 (component)에 어떤 데이터 (state)가 주입되고 변경되냐에 따라 변화
