@@ -1,4 +1,4 @@
-# [Counter]()
+# [Counter](https://velog.io/@nezhitsya/스파르타-코딩-클럽-개발일지-1-x52c7312)
 
 <p align="center">
   <img width="300" src="https://user-images.githubusercontent.com/60697742/150051120-f62213c8-2885-42c2-9bf8-8ac9db47ce37.MP4">

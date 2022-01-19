@@ -2,7 +2,7 @@
 
 # Sparta Coding Club - React Native 2
 
-## [1 주차 과제]()
+## [1 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2001/Homework01)
 
 <p align="center">
   <img width="300" src="https://user-images.githubusercontent.com/60697742/150051120-f62213c8-2885-42c2-9bf8-8ac9db47ce37.MP4">
