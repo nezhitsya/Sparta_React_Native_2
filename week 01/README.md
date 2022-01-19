@@ -76,7 +76,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
 
 ## 05. Expo 프로젝트 생성 & Expo 명령어
 
-> [참고](https://github.com/nezhitsya/Sparta_React_Native/blob/master/week%2002/README.md)
+> [참고 - React Native 1](https://github.com/nezhitsya/Sparta_React_Native/blob/master/week%2002/README.md)
 
 **Expo 명령어 도구 설치**
 
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
 
 ## 11. 화면 구역 나누는 Flex
 
-> [참고](https://github.com/nezhitsya/Sparta_React_Native/tree/master/week%2002)
+> [참고 - React Native 1](https://github.com/nezhitsya/Sparta_React_Native/tree/master/week%2002)
 
 **flex**
 
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
 **컴포넌트 (Component)**
 
 - 정해진 엘리먼트 (요소)를 사용하여 만든 화면의 일부분
-- UI의 요소 하나하나를 재사용 가능한 부분으로 조각내어 운영하는 기법
+- UI의 요소 하나하나를 재사용 가능한 부분으로 조각내어 운영하는 기법 <br>
   `App.js == App 컴포넌트`
 
 **상태 (State)**
@@ -768,3 +768,105 @@ const styles = StyleSheet.create({
 - 리액트에서는 컴포넌트에서 보유 / 관리되는 데이터를 `상태`라고 일컫음 <br>
   `UI = component(state)`
 - UI (사용자 화면)은 컴포넌트 (component)에 어떤 데이터 (state)가 주입되고 변경되냐에 따라 변화
+
+**App.jsx**
+
+```javascript
+import React, { useState } from "react";
+import { StyleSheet, ScrollView, View, Text, Alert } from "react-native";
+import data from "./data.json";
+
+export default function App() {
+  const [state, setState] = useState(data.diary);
+  return (
+    <ScrollView contentContainerStyle={styles.contianer}>
+      {state.map((content, i) => {
+        return (
+          <View key={i}>
+            <Text>{content.title}</Text>
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  contianer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+```
+
+- 초기 상태값 세팅 `useState(data.diary)`
+- () 괄호 안에 리스트, 숫자형, 문자형, 딕셔너리형 등의 데이터를 넣으면 state는 해당 데이터를 갖는 변수의 성격
+- 상태 값 변경 시 코드 상의 setState 함수 사용 (이름 임의 변경 가능)
+
+## 14. useEffect
+
+- 화면이 그려진 다음 가장 먼저 실행되는 함수
+
+```
+useEffect(()=>{
+
+	...화면이 그려진 다음 가장 먼저 실행되야 할 코드 작성 공간
+
+},[])
+```
+
+- useEffect는 데이터 준비 시 사용 (데이터를 서버로부터 받은 후 상태(state)에 반영)
+  1. 화면 추출
+  2. useEffect가 데이터를 준비
+  3. 상태 데이터 업데이트 후 화면 업데이트
+- 화면이 그려진 후 서버에게 필요한 데이터 요청 및 수신 후 화면을 다시 업데이터할 때 사용
+
+```javascript
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, View, Text, Alert } from "react-native";
+import data from "./data.json";
+
+const tempList = [
+  { title: 1 },
+  { title: 2 },
+  { title: 3 },
+  { title: 4 },
+  { title: 5 },
+];
+
+export default function App() {
+  const [state, setState] = useState(tempList);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setState(data.diary);
+    }, 5000);
+  }, []);
+
+  return (
+    <ScrollView contentContainerStyle={styles.contianer}>
+      {state.map((content, i) => {
+        return (
+          <View key={i}>
+            <Text>{content.title}</Text>
+          </View>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  contianer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149894826-d0ecd0c7-0989-4d5f-b62b-7a2b04d29982.png">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/149890165-ac6ef54f-723c-40f0-ad14-5a4b4602d632.png">
+</p>
