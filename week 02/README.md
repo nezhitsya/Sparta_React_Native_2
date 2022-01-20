@@ -251,3 +251,324 @@ const { title } = route.params;
 ```
 yarn add @react-navigation/bottom-tabs
 ```
+
+- 탭 네비게이터도 하나의 페이지
+- 어떤 페이지를 탭 네비게이터로 묶을 것인지 지정
+
+```javascript
+import React from "react";
+import { Platform } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import MainPage from "../pages/MainPage";
+import MyPage from "../pages/MyPage";
+import AddPage from "../pages/AddPage";
+
+const Tabs = createBottomTabNavigator();
+
+const TabNavigator = ({ navigation, route }) => {
+  return (
+    <Tabs.Navigator
+      tabBarOptions={{
+        showLabel: true,
+        style: {
+          backgroundColor: "white",
+          borderTopColor: "lightgray",
+          height: 40,
+          fontSize: 10,
+        },
+        activeTintColor: "tomato",
+        inactiveTintColor: "gray",
+      }}>
+      <Tabs.Screen name="MainPage" component={MainPage} />
+      <Tabs.Screen name="MyPage" component={MyPage} />
+      <Tabs.Screen name="AddPage" component={AddPage} />
+    </Tabs.Navigator>
+  );
+};
+
+export default TabNavigator;
+```
+
+- 페이지 기능을 위해 StackNavigator에 등록 (Tab에 추가된 페이지는 삭제)
+
+```javascript
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import SignInPage from "../pages/SignInPage";
+import SignUpPage from "../pages/SignUpPage";
+import DetailPage from "../pages/DetailPage";
+import TabNavigator from "./TabNavigator";
+
+const Stack = createStackNavigator();
+
+const StackNavigator = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Stack.Screen name="TabNavigator" component={TabNavigator} />
+      <Stack.Screen name="SignInPage" component={SignInPage} />
+      <Stack.Screen name="SignUpPage" component={SignUpPage} />
+      <Stack.Screen name="DetailPage" component={DetailPage} />
+    </Stack.Navigator>
+  );
+};
+
+export default StackNavigator;
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150262200-24d81063-3e9e-411c-9adc-6579238ded94.MP4">
+</p>
+
+## 07. 탭 네비게이터 활용
+
+**activeTintColor**
+
+- 누른 버튼의 색 결정
+
+**inactiveTintColor**
+
+- 누르지 않은 나머지 버튼의 색 결정
+
+**탭에 아이콘 삽입 (라벨 숨기기)**
+
+```javascript
+import React from "react";
+import { Platform } from "react-native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Ionicons } from "@expo/vector-icons";
+import MainPage from "../pages/MainPage";
+import MyPage from "../pages/MyPage";
+import AddPage from "../pages/AddPage";
+
+const Tabs = createBottomTabNavigator();
+
+const TabNavigator = ({ navigation, route }) => {
+  return (
+    <Tabs.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused }) => {
+          let iconName = Platform.OS === "ios" ? "ios-" : "md-";
+          if (route.name === "MainPage") {
+            iconName += "list";
+          } else if (route.name === "AddPage") {
+            iconName += "apps-outline";
+          } else if (route.name === "MyPage") {
+            iconName += "person";
+          }
+          return (
+            <Ionicons
+              name={iconName}
+              color={focused ? "hotpink" : "grey"}
+              size={26}
+            />
+          );
+        },
+      })}
+      tabBarOptions={{
+        showLabel: false,
+        style: {
+          backgroundColor: "white",
+          borderTopColor: "lightgray",
+          height: 40,
+          fontSize: 10,
+        },
+        activeTintColor: "tomato",
+        inactiveTintColor: "gray",
+      }}>
+      <Tabs.Screen name="MainPage" component={MainPage} />
+      <Tabs.Screen name="MyPage" component={MyPage} />
+      <Tabs.Screen name="AddPage" component={AddPage} />
+    </Tabs.Navigator>
+  );
+};
+
+export default TabNavigator;
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150263323-dacac7bd-3869-4a95-8b73-44b635a5aa8b.MP4">
+</p>
+
+- `screenOptions={({ route }) => ({ })` 에서 route 부분은 어떤 페이지를 현재 사용자가 보고 있는지에 대한 정보
+- 내부의 `tabBarIcon: ({ focused }) => {}})` 부분은 특정 탭을 눌렀을 때, 즉 포커싱(focused) 되었을때 어떠한 아이콘을 보여줄지 결정
+- 임포트한 아이콘 `import { Ionicons } from '@expo/vector-icons';`은 기기들 마다 제공되는 아이콘이 다르기때문에 iOS인지 안드로이드인지 구별한 후 적절히 이름 결정
+  - iOS는 일단적으로 `ios-` 가 붙고 안드로이드에는 `md-`
+
+1. 어떤 페이지를 보고 있는지 페이지 이름이 들어 있는 route.name을 살펴보고
+2. iOS인지 안드로이드인지 살펴보고
+3. 그에 맞는 아이콘을 iconName 변수에 최종적으로 삽입
+
+> [Expo 아이콘 모음](https://icons.expo.fyi/)
+
+**특정 탭 누를때 이벤트 팝업 / 데이터 전송 시**
+
+- 팝업 설정할 페이지 코드
+
+```javascript
+import React, { useEffect } from "react";
+import { StyleSheet, View, Text, Alert } from "react-native";
+
+export default function MainPage({ navigation }) {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", (e) => {
+      Alert.alert("Main Page!");
+    });
+    return unsubscribe;
+  }, [navigation]);
+  return (
+    <View>
+      <Text>MainPage</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({});
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150264250-052a7cc9-c373-4c1e-9dfd-9a4da94b312d.MP4">
+</p>
+
+- useEffect 안에 이벤트 등록
+- 어떤 탭 버튼이 눌렸는지 지켜보다 변화를 감지하면 실행
+
+```javascript
+useEffect(() => {
+	const unsubscrbie = navigation.addListener('focus', (e) => {
+		Alert.alert('메인페이지에 들어왔군요!');
+	});
+```
+
+- [ ]에 navigation이라는 stack navigator에 넣어둔 도구 호출
+- navigation 안에는 페이지에 대한 정보가 담겨 사용자가 어떤 탭을 눌렀는지 인지
+
+```javascript
+}, [navigation]);
+```
+
+- return 구문은 현재 화면이 바뀔 때 정리할 것들
+- `const unsubscribe`에 팝업 기능을 담아뒀기 때문에 팝업이 한 번만 실행되기 위해서 unsubscribe를 return에 두어 정리
+
+```javascript
+return unsubscrbie;
+```
+
+## 08. NativeBase 소개 & 설치
+
+**NativeBase**
+
+- 만들어진 스타일을 쉽게 삽입
+
+> [NativeBase 공식 문서](https://docs.nativebase.io/)
+
+**설치**
+
+```
+yarn add native-base@2 --save
+```
+
+**폰트 도구 설치**
+
+```
+expo install expo-font
+```
+
+**App.jsx**
+
+```javascript
+import React, { useEffect, useState } from "react";
+import { StyleSheet } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import StackNavigator from "./navigations/StackNavigator";
+import * as Font from "expo-font";
+import { Ionicons } from "@expo/vector-icons";
+import Loading from "./pages/Loading";
+
+export default function App() {
+  const [ready, setReady] = useState(false);
+
+  const loadFont = () => {
+    setTimeout(async () => {
+      await Font.loadAsync({
+        Roboto: require("native-base/Fonts/Roboto.ttf"),
+        Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+        ...Ionicons.font,
+      });
+      await setReady(true);
+    }, 1000);
+  };
+
+  useEffect(() => {
+    loadFont();
+  }, []);
+
+  return ready ? (
+    <NavigationContainer>
+      <StackNavigator />
+    </NavigationContainer>
+  ) : (
+    <Loading />
+  );
+}
+
+const styles = StyleSheet.create({
+  contianer: {
+    flex: 1,
+  },
+});
+```
+
+> **Roboto**
+> Roboto는 Google에서 모바일 운영 체제 Android의 시스템 글꼴로 개발 한 네오 그로테스크 한 산세 리프 서체 제품군으로 2011 년 Android 4.0 "Ice Cream Sandwich"용으로 출시
+
+- 폰트 준비할 시간 부여
+- setTimeout은 지연 자바스크립트 문버 (1000은 1초) > 1초 후 ready 상태 해제
+
+```javascript
+const loadFont = () => {
+  setTimeout(async () => {
+    await Font.loadAsync({
+      Roboto: require("native-base/Fonts/Roboto.ttf"),
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+      ...Ionicons.font,
+    });
+    await setReady(true);
+  }, 1000);
+};
+```
+
+- 처음엔 Loading 페이지 > 1초 뒤 탭 네비게이터 첫 화면인 MainPage
+- loadFont() 함수 내부에선 자바스크립트 문법이 async / await를 통해 폰트 로딩 → 준비 상태 변경 로직이 순서대로 진행
+
+## 09. NativeBase 기본
+
+<img width="801" src="https://user-images.githubusercontent.com/60697742/150270071-d250e1ec-395e-41d3-a82b-787d92beec81.png">
+
+```javascript
+import React, { Component } from "react";
+import { Container, Header } from "native-base";
+import { Col, Row, Grid } from "react-native-easy-grid";
+
+export default function SignInPage() {
+  return (
+    <Container>
+      <Header />
+      <Grid>
+        <Col size={2} style={{ backgroundColor: "#635DB7", height: 200 }}></Col>
+        <Col size={1} style={{ backgroundColor: "#00CE9F", height: 200 }}></Col>
+      </Grid>
+    </Container>
+  );
+}
+```
+
+- 헤더의 오른쪽 왼쪽 레이아웃도 < Left /> < Right /> 태그로 결정 가능
+- 내용 부분도 Content 태그로 쉽게 구현 가능
+- 가로로 구분할지 세로로 구분할지에 대해 Col, Row 태그로 결정할 수 있고 size 속성값으로 영역의 범위를 결정
+- Intput 이란 태그는 사용자들에게 정보를 제공받는 입력란 기능
+- Input 태그에 picker 속성을 넣으면 선택할 수 있는 입력란이 되고, last를 입력하면 화면 가로 길이를 꽉채우는 스타일 부여
+
+## 10. 로그인 페이지
