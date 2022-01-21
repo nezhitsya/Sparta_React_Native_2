@@ -349,6 +349,7 @@ const TabNavigator = ({ navigation, route }) => {
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
+        headerShown: false,
         tabBarIcon: ({ focused }) => {
           let iconName = Platform.OS === "ios" ? "ios-" : "md-";
           if (route.name === "MainPage") {
@@ -565,6 +566,10 @@ export default function SignInPage() {
 }
 ```
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150275393-ea681e2f-6096-4e99-ba76-e6aebcd207e7.PNG">
+</p>
+
 - 헤더의 오른쪽 왼쪽 레이아웃도 < Left /> < Right /> 태그로 결정 가능
 - 내용 부분도 Content 태그로 쉽게 구현 가능
 - 가로로 구분할지 세로로 구분할지에 대해 Col, Row 태그로 결정할 수 있고 size 속성값으로 영역의 범위를 결정
@@ -572,3 +577,205 @@ export default function SignInPage() {
 - Input 태그에 picker 속성을 넣으면 선택할 수 있는 입력란이 되고, last를 입력하면 화면 가로 길이를 꽉채우는 스타일 부여
 
 ## 10. 로그인 페이지
+
+1. < ImageBackground > : 앱 전체 배경 화면 결정
+2. Content 태그에서 flex 사용하여 전체 레이아웃 차지 및 정렬 가능
+3. React Native와 태그 비교
+
+```
+Form : React Native의 View
+Item : React Native의 TouchableOpacity
+Input : React Native의 TextInput
+Label : React Native의 Text
+```
+
+4. 회원가입 페이지로 이동 : Button에 goSignUp 함수 연결
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150462712-a0261aeb-58f9-4d66-adcd-4a0003960497.PNG">
+</p>
+
+```javascript
+import React, { Component } from "react";
+import { StyleSheet, ImageBackground } from "react-native";
+import {
+  Container,
+  Content,
+  Text,
+  Form,
+  Item,
+  Input,
+  Label,
+  Button,
+} from "native-base";
+
+const bImage = require("../assets/background.png");
+
+export default function SignInPage({ navigation }) {
+  const goSignUp = () => {
+    navigation.navigate("SignUpPage");
+  };
+
+  return (
+    <Container style={styles.container}>
+      <ImageBackground source={bImage} style={styles.backgroundImage}>
+        <Content contentContainerStyle={styles.content} scrollEnabled={false}>
+          <Text style={styles.title}>
+            <Text style={styles.highlite}>we</Text>gram
+          </Text>
+          <Form style={styles.form}>
+            <Item floatingLabel last>
+              <Label style={styles.label}>E-mail</Label>
+              <Input style={styles.input} />
+            </Item>
+            <Item floatingLabel last>
+              <Label style={styles.label}>Password</Label>
+              <Input style={styles.input} />
+            </Item>
+          </Form>
+          <Button full style={styles.emailSignIn}>
+            <Text>E-mail LogIn</Text>
+          </Button>
+          <Button full style={styles.emailSignUp} onPress={goSignUp}>
+            <Text style={{ color: "white" }}>SignUp</Text>
+          </Button>
+        </Content>
+      </ImageBackground>
+    </Container>
+  );
+}
+```
+
+## 11. 회원가입 페이지
+
+1. Item 태그 영역의 컴포넌트화 - 재사용성
+
+```javascript
+import React from "react";
+import { StyleSheet } from "react-native";
+import { Item, Input, Label } from "native-base";
+
+export default function ItemInput({ title }) {
+  return (
+    <Item floatingLabel last>
+      <Label style={styles.label}>{title}</Label>
+      <Input style={styles.input} />
+    </Item>
+  );
+}
+```
+
+2. navigation.navigate 함수가 아닌 goBack() 함수를 이용해 뒤로가기
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150464987-49c4fdff-87c3-4fb0-82ff-847e58764397.mp4">
+</p>
+
+```javascript
+import React from "react";
+import { StyleSheet, ImageBackground } from "react-native";
+import {
+  Container,
+  Content,
+  Text,
+  Form,
+  Item,
+  Input,
+  Label,
+  Button,
+  Header,
+  Left,
+  Icon,
+  Body,
+  Right,
+} from "native-base";
+import ItemInput from "../components/ItemInput";
+
+const bImage = require("../assets/background.png");
+
+export default function SignUpPage({ navigation }) {
+  return (
+    <Container style={styles.container}>
+      <ImageBackground source={bImage} style={styles.backgroundImage}>
+        <Header transparent>
+          <Left>
+            <Button
+              transparent
+              onPress={() => {
+                navigation.goBack();
+              }}>
+              <Icon name="arrow-back" style={{ color: "white" }} />
+            </Button>
+          </Left>
+          <Body />
+          <Right />
+        </Header>
+        <Content contentContainerStyle={styles.content} scrollEnabled={false}>
+          <Text style={styles.title}>
+            <Text style={styles.highlite}>we</Text>gram signup
+          </Text>
+          <Form style={styles.form}>
+            <ItemInput title={"nickname"} />
+            <ItemInput title={"E-mail"} />
+            <ItemInput title={"Password"} />
+            <ItemInput title={"Password check"} />
+          </Form>
+          <Button full style={styles.emailSignUp}>
+            <Text>Register</Text>
+          </Button>
+        </Content>
+      </ImageBackground>
+    </Container>
+  );
+}
+```
+
+## 12. 메인 페이지 : 헤더, 카드
+
+1. Header의 배경색을 없애는 속성 : `<Header transparent>`
+2. 이미지를 지연 없이 부르기 위한 `react-native-image-blur-loading`
+
+**설치**
+
+```
+yarn add react-native-image-blur-loading
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150480732-fa97ba2a-4c48-4fc7-b6c8-7e417c8ebc09.PNG">
+</p>
+
+```javascript
+import React from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import {} from 'react-native-easy-grid';
+import { Card, CardItem, Col, Grid, Icon, Text } from 'native-base';
+import ImageBlurLoading from 'react-native-image-blur-loading';
+
+const image = require('../assets/background2.png');
+const logo = require('../assets/logo.png');
+
+export default function CardComponent({ navigation }) {
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('DetailPage');
+      }}
+      style={styles.container}
+    >
+      <Card style={styles.card} transparent>
+        <CardItem transparent>
+          <ImageBlurLoading
+            withIndicator
+            thumbnailSource={image}
+            source={image}
+            style={styles.image}
+          />
+        </CardItem>
+        ...
+```
+
+## 13. 메인 페이지
+
+1. padding과 margin은 Inline 스타일로 적절히 이격 표현
+2. data.json을 불러와 카드 컴포넌트로 데이터를 넘겨 데이터 표현
