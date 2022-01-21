@@ -16,6 +16,19 @@ App.jsx에서 count라는 상태값 관리 > 이 상태 값을 변경하는 함�
 
 ## [2 주차 과제]()
 
+```
+MyPage & DetailPage 구현
+MainPage에서 카드를 눌렀을 때 DetailPage에 데이터 전송
+
+MyPage 구현 조건
+  1. flexWrap: 'wrap'
+  2. ImageBlurLoading
+
+DetailPage 구현 조건
+  1. NativeBase의 ListItem을 이용해 댓글 리스트 구현
+  2. 각 댓글은 컴포넌트로 재사용
+```
+
 ## [3 주차 과제]()
 
 ## [4 주차 과제]()

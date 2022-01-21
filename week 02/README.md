@@ -779,3 +779,85 @@ export default function CardComponent({ navigation }) {
 
 1. padding과 margin은 Inline 스타일로 적절히 이격 표현
 2. data.json을 불러와 카드 컴포넌트로 데이터를 넘겨 데이터 표현
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150482267-971be8f7-bd0a-4c0e-920e-52f59d7ad183.mp4">
+</p>
+
+- MainPage에서 데이터 전송
+
+```javascript
+<View style={{ marginTop: -20 }}>
+  {data.diary.map((content, i) => {
+    return <CardComponent content={content} key={i} navigation={navigation} />;
+  })}
+</View>
+```
+
+- CardComponent가 데이터를 받아와 표현
+
+```javascript
+export default function CardComponent({ navigation, content }) {
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        navigation.navigate('DetailPage');
+      }}
+      style={styles.container}
+    >
+      <Card style={styles.card} transparent>
+        <CardItem transparent>
+          <ImageBlurLoading
+            withIndicator
+            thumbnailSource={{ uri: content.image }}
+            source={{ uri: content.image }}
+            style={styles.image}
+          />
+        </CardItem>
+        ...
+```
+
+## 14. 애니메이션
+
+- [리액트 네이티브에서 직접적으로 애니메이셔 기능 제공](https://reactnative.dev/docs/animated)
+- [애니메이션 기능 제공 도구](https://blog.bitsrc.io/top-5-animation-libraries-in-react-native-d00ec8ddfc8d)
+- [react-native-animatable](https://github.com/oblador/react-native-animatable)
+
+**react-native-animatable 설치**
+
+```
+yarn add react-native-animatable
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/150485974-aabbfd6b-2f5a-415d-980d-48721e2ff15f.MP4">
+</p>
+
+```javascript
+import * as Animatable from 'react-native-animatable';
+
+const data = require('../data.json');
+
+export default function MainPage({ navigation }) {
+  return (
+    <Container>
+      <HeaderComponent />
+      <Content>
+        <Animatable.View
+          animation="pulse"
+          easing="ease-out"
+          iterationCount={'infinite'}
+          direction="alternate"
+        >
+          <Grid style={styles.banner}>
+            <Col size={1} style={{ padding: 20 }}>
+              <Icon name="paper-plane" style={{ color: 'orange' }} />
+            </Col>
+            <Col size={6} style={{ padding: 15 }}>
+              <Text>이야기 하고 싶은 친구들에게</Text>
+              <Text style={{ fontWeight: 'bold' }}>wegram을 전하세요</Text>
+            </Col>
+          </Grid>
+        </Animatable.View>
+        ...
+```
