@@ -1,0 +1,74 @@
+import React from "react";
+import { StyleSheet, View, Text } from "react-native";
+import { Col, Row, Grid } from "react-native-easy-grid";
+import { Container, Content, Thumbnail } from "native-base";
+import HeaderComponent from "../components/HeaderComponent";
+import ImageComponent from "../components/ImageComponent";
+
+const profile = require("../assets/my.png");
+const data = require("../data.json");
+
+export default function MyPage() {
+  return (
+    <Container>
+      <HeaderComponent />
+      <Content>
+        <Col>
+          <Thumbnail large source={profile} style={styles.image} />
+          <Text style={styles.title}>스파르타 코딩 클럽</Text>
+          <Text style={styles.email}>dylee@spartacoding.co.kr</Text>
+        </Col>
+        <Grid style={{ marginTop: 20 }}>
+          <Col size={3} style={{ alignItems: "center" }}>
+            <Text style={styles.category}>작성한 글</Text>
+            <Text style={styles.categoryContent}>7</Text>
+          </Col>
+          <Col size={3} style={{ alignItems: "center" }}>
+            <Text style={styles.category}>작성한 댓글</Text>
+            <Text style={styles.categoryContent}>21</Text>
+          </Col>
+          <Col size={3} style={{ alignItems: "center" }}>
+            <Text style={styles.category}>방문 횟수</Text>
+            <Text style={styles.categoryContent}>321</Text>
+          </Col>
+        </Grid>
+        <Grid style={styles.imageContainer}>
+          {data.diary.map((content, i) => {
+            return <ImageComponent image={content.image} key={i} />;
+          })}
+        </Grid>
+      </Content>
+    </Container>
+  );
+}
+
+const styles = StyleSheet.create({
+  imageContainer: {
+    flexWrap: "wrap",
+    marginTop: 20,
+  },
+  title: {
+    alignSelf: "center",
+    marginTop: 20,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  email: {
+    alignSelf: "center",
+    marginTop: 5,
+    color: "gray",
+  },
+  category: {
+    fontWeight: "bold",
+    fontSize: 17,
+  },
+  categoryContent: {
+    fontWeight: "bold",
+    color: "orange",
+    fontSize: 19,
+  },
+  image: {
+    alignSelf: "center",
+    marginTop: 30,
+  },
+});
