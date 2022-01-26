@@ -14,7 +14,11 @@ App.jsx에서 count라는 상태값 관리 > 이 상태 값을 변경하는 함�
 두 함수를 각 컴포넌트로 넘겨 버튼 컴포넌트 누르면 App.jsx의 count 상태 변경
 ```
 
-## [2 주차 과제]()
+## [2 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2002/Homework02)
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/151105310-797663fc-6726-4880-ab24-fe7fe8f64cc1.mp4">
+</p>
 
 ```
 MyPage & DetailPage 구현

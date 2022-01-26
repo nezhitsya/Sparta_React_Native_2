@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
-import {} from "react-native-easy-grid";
-import { Card, CardItem, Col, Grid, Icon, Text } from "native-base";
+import { Col, Grid } from "react-native-easy-grid";
+import { Card, CardItem, Icon, Text } from "native-base";
 import ImageBlurLoading from "react-native-image-blur-loading";
 
 const image = require("../assets/background2.png");
