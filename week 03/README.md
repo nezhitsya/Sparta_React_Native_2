@@ -199,3 +199,130 @@ expo install firebase
 ```
 
 > expo start로 앱 실행 시 터미널에서 컨트롤 + c 를 눌러 엑스포 앱 종료 후 파이어베이스 라이브러리 설치
+
+**key.js**
+
+```javascript
+export default {
+  firebaseConfig: {
+    <-- 생성한 계정 firebaseConfig 붙여넣기 -->
+  },
+};
+```
+
+## 07. 파이어베이스 회원가입 로직 설정
+
+- 파이어베이스와 통신 설정
+
+**App.jsx**
+
+```javascript
+//파이어베이스 라이브러리
+import * as firebase from 'firebase';
+//파이어베이스 접속 키값
+import apiKeys from './config/key';
+...
+export default function App() {
+  //파이어베이스 라이브러리가 준비 되면 연결하는 조건문
+  if (!firebase.apps.length) {
+    console.log('Connected with Firebase');
+    firebase.initializeApp(apiKeys.firebaseConfig);
+  }
+  ...
+```
+
+- 회원가입시 입력 값
+
+**SignUpPage.jsx**
+
+```javascript
+const doSignUp = () => {
+  if (password == "") {
+    setPasswordError("비밀번호를 입력해주세요");
+    return false;
+  } else {
+    setPasswordError("");
+  }
+
+  if (passwordConfirm == "") {
+    setPasswordConfirmError("비밀번호 확인을 입력해주세요");
+    return false;
+  } else {
+    setPasswordConfirmError("");
+  }
+
+  if (password !== passwordConfirm) {
+    setPasswordConfirmError("비밀번호가 서로 일치하지 않습니다");
+    return false;
+  } else {
+    setPasswordConfirmError("");
+  }
+};
+```
+
+- 입력 값이 누락되지 않고 모두 입력이 된 상태여야 파이어베이스에 API 요청 가능
+- if 조건문으로 값 누락시 `return false` 실행
+- `return false`는 자바스크립트 코드가 진행되다 중간에 멈추는 기능
+
+## 08. 파이어베이스 회원가입 - Authentication API
+
+- 파이어베이스 라이브러리에서 회원가입 함수, 로그인 함수, 데이터베이스 함수 사용 > 자바스크립트 파일로 관리
+
+**config / firebaseFunctions.js**
+
+```javascript
+import * as firebase from "firebase";
+import "firebase/firestore";
+import { Alert } from "react-native";
+
+export async function registration(nickName, email, password) {
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const currentUser = firebase.auth().currentUser;
+    Alert.alert("회원가입 성공");
+  } catch (err) {
+    Alert.alert("회원가입 실패 -> ", err.message);
+  }
+}
+```
+
+**export**
+
+- export(내보내기) 키워드가 붙은 함수 생성
+
+**async / await**
+
+- 외부 API를 사용하거나 데이터베이스 접속과 같은 무거운 기능 사용 시 자바스크립트에서 작성한 코드 순서로 실행되기 위해 사용하는 문법
+- 자바스크립트 코드 순서를 강제
+- 함수 앞에 async를 쓰면 내부에서 사용되는 함수 이름 앞에 await를 쓰는 쌍의 구조
+
+> [참조](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Statements/async_function)
+
+**파이어베이스 회원가입 함수 API**
+
+```javascript
+await firebase.auth().createUserWithEmailAndPassword(email, password);
+const currentUser = firebase.auth().currentUser;
+```
+
+- `import * as firebase from 'firebase'` 파이어베이스 라이브러리에서 `auth()` 함수 호출
+- `auth()` 함수 안의 `createUserWithEmailAndPassword` 함수 사용
+- `firebase.auth()`에서 currentUser 값 변수 생성 < `쿠키, 세션` 기능으로 관리
+
+> 쿠키 & 세션 <br> 브라우저에 데이터를 저장해두고 사용하는 기능
+
+**SignUpPage.jsx**
+
+```javascript
+import { registration } from '../config/firebaseFunctions';
+...
+const doSignUp = () => {
+  ...
+  registration(nickName, email, password);
+};
+```
+
+1. 유효한 계정 정보인지 체크 (이메일 @ 형식 확인)
+2. 회원 정보 암호화 (사용지 UID) 관리
+
+## 09. 파이어베이스 회원가입 - Cloud Firestore
