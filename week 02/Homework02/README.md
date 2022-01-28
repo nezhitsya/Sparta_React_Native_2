@@ -1,4 +1,4 @@
-# [Detail & Profile Page](https://velog.io/@nezhitsya/스파르타-코딩-클럽-개발일지-2-ylc394ug)
+# [Detail & Profile Page](https://velog.io/@nezhitsya/스파르타-코딩-클럽-개발일지-2-5u0cymac)
 
 <p align="center">
   <img width="300" src="https://user-images.githubusercontent.com/60697742/151105310-797663fc-6726-4880-ab24-fe7fe8f64cc1.mp4">
