@@ -218,7 +218,7 @@ export default {
 
 ```javascript
 //파이어베이스 라이브러리
-import * as firebase from 'firebase';
+import firebase from 'firebase/compat/app'
 //파이어베이스 접속 키값
 import apiKeys from './config/key';
 ...
@@ -271,8 +271,8 @@ const doSignUp = () => {
 **config / firebaseFunctions.js**
 
 ```javascript
-import * as firebase from "firebase";
-import "firebase/firestore";
+import firebase from "firebase/compat";
+import "firebase/compat/firestore";
 import { Alert } from "react-native";
 
 export async function registration(nickName, email, password) {
@@ -305,11 +305,16 @@ await firebase.auth().createUserWithEmailAndPassword(email, password);
 const currentUser = firebase.auth().currentUser;
 ```
 
-- `import * as firebase from 'firebase'` 파이어베이스 라이브러리에서 `auth()` 함수 호출
+- `import firebase from 'firebase/compat/app'` 파이어베이스 라이브러리에서 `auth()` 함수 호출
 - `auth()` 함수 안의 `createUserWithEmailAndPassword` 함수 사용
 - `firebase.auth()`에서 currentUser 값 변수 생성 < `쿠키, 세션` 기능으로 관리
 
 > 쿠키 & 세션 <br> 브라우저에 데이터를 저장해두고 사용하는 기능
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/151308086-24cf5067-b763-40d4-af97-3ff99f969a4c.MP4">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/151308205-5e05ac34-e3e1-42a1-a88f-9db3f7ff48a1.mp4">
+</p>
 
 **SignUpPage.jsx**
 
@@ -326,3 +331,115 @@ const doSignUp = () => {
 2. 회원 정보 암호화 (사용지 UID) 관리
 
 ## 09. 파이어베이스 회원가입 - Cloud Firestore
+
+**Authentication**
+
+- 정제된 회원 데이터 암호화하여 관리
+- 사용자 UID 갑 생성 및 보유
+
+**Cloud Firestore**
+
+- 구체적인 회원 데이터 저장 및 관리
+- 사용자 UID 보유
+
+> 두 서비스 모두 사용자 UID를 보유하여 로그인할 땐 Authentication에서 인증 진행 후 구체적 회원 정보를 가져올 땐 Cloud Firestore에서 관리
+
+**firebaseFunctions**
+
+```javascript
+export async function registration(nickName, email, password) {
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, password);
+    const currentUser = firebase.auth().currentUser;
+    const db = firebase.firestore();
+    db.collection("users").doc(currentUser.uid).set({
+      email: currentUser.email,
+      nickName: nickName,
+    });
+    Alert.alert("회원가입 성공");
+  } catch (err) {
+    Alert.alert("회원가입 실패 -> ", err.message);
+  }
+}
+```
+
+- `collection`은 책과 같은 개념
+- `doc`은 목차
+- `set`은 안에 삽입할 내용을 딕셔너리 형태로 저장 및 관리
+
+## 10. 파이어베이스 로그인
+
+- 파이어베이스 Authentication 서비스 조회 == 로그인
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/151308677-ebb977ea-fee9-4a23-8162-cff6d8924840.mp4">
+</p>
+
+**firebaseFunctions**
+
+```javascript
+...
+export async function signIn(email, password, navigation) {
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+    navigation.replace("TabNavigator");
+  } catch (err) {
+    Alert.alert("로그인 실패 -> ", err.message);
+  }
+}
+```
+
+- `try...catch` 문으로 로그인 성공 시 TanNavigator로 화면 전환
+- `email.trim()`과 같이 trim 함수를 이용해 문자열 앞뒤의 공백 제거
+
+## 11. 파이어베이스 로그인 / 회원가입 심화
+
+- 회원 가입 후 바로 MainPage로 이동
+
+```javascript
+export async function registration(nickName, email, password, navigation) {
+  try {
+    ...
+    navigation.navigate('TabNavigator');
+    ...
+```
+
+- 로그인 / 회원가입 후 메인페이지로 갔을 때 뒤로가기 막기
+- 로그아웃 실행 후 로그인 페이지로 갔을 때 뒤로가기 막기
+
+**MainPage.jsx & SignInPage.jsx**
+
+```javascript
+...
+  useEffect(() => {
+    navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+    });
+  }, []);
+  ...
+```
+
+**firebaseFunctions.js**
+
+```javascript
+navigation.navigate('TabNavigator'); -> navigation.push('TabNavigator');
+
+navigation.replace('TabNavigator'); -> navigation.push('TabNavigator');
+```
+
+- beforeRemove : 이 전 페이지 기록 삭제
+
+> iOS는 기본적으로 gesture 옵션 true
+> 왼쪽에서 오른쪽을 쓸어넘겨 뒤로가기
+
+**StackNavigator.jsx**
+
+```javascript
+...
+<Stack.Screen
+  name="SignInPage"
+  component={SignInPage}
+  options={{ gestureEnabled: false }}
+/>
+...
+```
