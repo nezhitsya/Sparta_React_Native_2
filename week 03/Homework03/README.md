@@ -7,7 +7,13 @@
 ## 라이브러리
 
 ```javascript
-
+import React from "react";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { Col, Row, Grid } from "react-native-easy-grid";
+import { Container, Content, Thumbnail } from "native-base";
+import { logout } from "../config/firebaseFunctions";
+import HeaderComponent from "../components/HeaderComponent";
+import ImageComponent from "../components/ImageComponent";
 ```
 
 ## 함수
@@ -27,5 +33,7 @@ export async function logout(navigation) {
   }
 }
 ```
+
+- 로딩화면 출력
 
 ## 디자인

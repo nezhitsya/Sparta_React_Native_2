@@ -17,12 +17,6 @@ import { signIn } from "../config/firebaseFunctions";
 const bImage = require("../assets/background.png");
 
 export default function SignInPage({ navigation }) {
-  useEffect(() => {
-    navigation.addListener("beforeRemove", (e) => {
-      e.preventDefault();
-    });
-  }, []);
-
   const [ready, setReady] = useState(false);
 
   const [email, setEmail] = useState("");
