@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { Container, Content, Thumbnail } from "native-base";
+import { Container, Content, Thumbnail, Text } from "native-base";
 
 const LoadingImage = require("../assets/loading.gif");
 
