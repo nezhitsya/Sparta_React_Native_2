@@ -82,6 +82,10 @@ await AsyncStorage.setItem("session", email);
 await AsyncStorage.removeItem("session");
 ```
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/152271741-de0ab4f4-2f1f-4dce-988e-73f0dfcba0be.mov">
+</p>
+
 **SignInPage.jsx**
 
 ```javascript
@@ -112,4 +116,123 @@ useEffect(() => {
 
 ## 03. 글 작성
 
-**글 작성 - AddPage.jsx**
+- 작성중인 글 상태 관리
+
+**AddPage.jsx**
+
+```javascript
+const [title, setTitle] = useState("");
+const [titleError, setTitleError] = useState("");
+
+const [content, setContent] = useState("");
+const [contentError, setContentError] = useState("");
+
+const [image, setImage] = useState(tempImage);
+
+const upload = () => {
+  console.log("upload");
+};
+```
+
+1. 이미지 파이어베이스 storage에 저장
+2. 이미지가 저장된 주소 요청
+3. 이미지 저장 주소가 들어 있는 최종 게시글 데이터를 Cloud Firestore에 저장
+
+## 04. 글 작성 후 업로드
+
+[Cloud Firestore 업로드 API 공식문서](https://firebase.google.com/docs/firestore/manage-data/add-data?hl=ko#node.js)
+
+**AddPage.jsx**
+
+```javascript
+const upload = async () => {
+  const currentUser = firebase.auth().currentUser;
+  let date = new Date();
+  let data = {
+    title: title,
+    author: currentUser.email,
+    desc: content,
+    image: image,
+    date: date.getTime(),
+    uid: currentUser.uid,
+  };
+  let result = addDiary(data);
+
+  if (result) {
+    Alert("작성 완료");
+  }
+};
+```
+
+- 파이어베이스 Authentication 데이터를 이용하여 현재 로그인한 사용자의 uid 추출
+- 자바스크립트 기본 제공 도구인 날짜 도구 Date()를 이용해 현재 날짜 추출
+- 현재 날짜는 Date 도구의 getTime() 함수를 이용하여 "표준시에 따라 지정된 날짜의 시간에 해당하는 숫자 값을 반환"받아 숫자로 기록
+
+> [MDN 공식 문서](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Date/getTime)
+
+**firebaseFunctions.js**
+
+```javascript
+export async function addDiary(content) {
+  try {
+    const db = firebase.firestore();
+    await db
+      .collection("diary")
+      .doc(content.date + "D")
+      .set(content);
+    return true;
+  } catch (err) {
+    Alert.alert("글 작성 실패 -> ", err.message);
+    return false;
+  }
+}
+```
+
+- 모든 Cloud Firestore 접속 정보와 API들 db 변수에 저장
+
+```javascript
+await db
+  .collection("diary")
+  .doc(content.date + "D")
+  .set(content);
+```
+
+- 어떤 컬렌션에 `diary` 어떤 문서에 `content.date + "D"` 어떤 내용 `content`
+- Cloud Firestore에 값을 저장할 때는 "문자" 자료형만 저장 가능
+- 숫자 형태였던 날짜 데이터에 D라는 문자를 더해 문자값으로 변형 시킨 후 값을 저장
+
+## 05. 파이어베이스 storage 설정
+
+- 가지고 있는 사진 업로드 / 바로 사진을 찍어 업로드 선택 -> 'expo-image-picker' 도구 사용
+
+**expo-image-picker 설치**
+
+```
+expo install expo-image-picker
+```
+
+> [imagepicker 공식문서](https://docs.expo.io/versions/latest/sdk/imagepicker/)
+
+- 권한 허용 확인
+
+**AddPage.jsx**
+
+```javascript
+useEffect(() => {
+  getPermission();
+}, []);
+
+const getPermission = async () => {
+  if (Platform.OS !== "web") {
+    const { status } = await ImgaePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("사진 권한이 필요합니다.");
+    }
+  }
+};
+```
+
+1. `ImgaePicker.requestMediaLibraryPermissionsAsync()` 함수로 사용자 권한 확인
+2. 팝업 상의 버튼에 따라 status 변수에 값 저장
+
+## 06. 이미지 업로드

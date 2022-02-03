@@ -33,7 +33,11 @@ DetailPage 구현 조건
   2. 각 댓글은 컴포넌트로 재사용
 ```
 
-## [3 주차 과제]()
+## [3 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2003/Homework03)
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/152269933-f296a40d-9298-44e1-9484-cd847af08c86.MP4">
+</p>
 
 ```
 로그아웃 기능 & Loading 화면 구현
