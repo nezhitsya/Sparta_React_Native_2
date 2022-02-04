@@ -215,6 +215,10 @@ expo install expo-image-picker
 
 - 권한 허용 확인
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/152475331-8d52b336-ae28-4e54-8568-0d1326c979b1.PNG">
+</p>
+
 **AddPage.jsx**
 
 ```javascript
@@ -235,4 +239,278 @@ const getPermission = async () => {
 1. `ImgaePicker.requestMediaLibraryPermissionsAsync()` 함수로 사용자 권한 확인
 2. 팝업 상의 버튼에 따라 status 변수에 값 저장
 
-## 06. 이미지 업로드
+## 06. 이미지 업로드 - 사진 준비
+
+- 갤러리에서 이미지를 가져오고 해당 데이터 추출
+
+**AddPage.jsx**
+
+```javascript
+const pickImage = async () => {
+  let imageData = await ImgaePicker.launchImageLibraryAsync({
+    mediaTypes: ImgaePicker.MediaTypeOptions.All,
+    allowsEditing: true,
+    aspect: [4, 4],
+    quality: 1,
+  });
+};
+```
+
+> `launchImageLibraryAsync` 부분을 `launchCameraAsync` 로 바꾸면 카메라 실행
+
+- 이미지 업로드
+  - 이미지 정보는 있지만 uri를 통해 실제 저장된 이미지의 주소로 찾아가, 데이터를 가져와 준비 필요
+
+**AddPage.jsx**
+
+```javascript
+const pickImage = async () => {
+  let imageData = await ImgaePicker.launchImageLibraryAsync({
+    mediaTypes: ImgaePicker.MediaTypeOptions.All,
+    allowsEditing: true,
+    aspect: [4, 4],
+    quality: 1,
+  });
+
+  getImageUrl(imageData);
+};
+
+const getImageUrl = async (imageData) => {
+  const response = await fetch(imageData.uri);
+  const blob = await response.blob();
+};
+```
+
+- 이미지를 blob 형태로 변형해야 최종적으로 storage 서버 업로드 가능
+
+> [blob 형식 이미지 공식문서](https://developer.mozilla.org/ko/docs/Web/API/Blob)
+
+```
+Blob 객체는 파일류의 불변하는 미가공 데이터를 나타냅니다.
+텍스트와 이진 데이터의 형태로 읽을 수 있으며,
+ReadableStream으로 변환한 후 그 메서드를 사용해 데이터를 처리할 수도 있습니다.
+
+Blob은 JavaScript 네이티브 형태가 아닌 데이터도 표현할 수 있습니다.
+File 인터페이스는 사용자 시스템의 파일을 지원하기 위해
+Blob 인터페이스를 확장한 것이므로, 모든 블롭 기능을 상속합니다.
+```
+
+- blob은 이미지를 문서 형태로 변환하여 storage에 업로드
+- `fetch`는 주소가 전달되면 해당 주소를 실행시켜 결과값을 가져오는 함수
+- expo-image-picker로 휴대폰 안에 저장되어 있는 이미지 주소를 가지고 와 이 이미지 주소를 통해 실제 이미지 데이터를 가져오는 수순
+
+## 07. 이미지 업로드 - 미리보기
+
+- 이미지를 파이어베이스에 저장하기 전 미리보기를 통해 보여주기 (최종 게시글 업로드 전 파일 서버 공간 낭비 방지)
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/152477413-d4da4a33-0129-46b0-b561-a6bb7064b1e7.PNG">
+</p>
+
+```javascript
+const [imageUri, setImageUri] = useState("");
+
+const getImageUrl = async (imageData) => {
+  const response = await fetch(imageData.uri);
+  const blob = await response.blob();
+  setImageUri(imageData.uri);
+};
+...
+// 원래 코드
+// <Grid style={styles.imageUpload} onPress={() => pickImage()}>
+//   <Text style={styles.imageUploadPlus}>+</Text>
+// </Grid>
+
+{imageUri == '' ? (
+  <Grid style={styles.imageUpload} onPress={() => pickImage()}>
+    <Text style={styles.imageUploadPlus}>+</Text>
+  </Grid>
+) : (
+  <Image
+    source={{ uri: imageUri }}
+    style={styles.imagePreview}
+    onPress={() => pickImage()}
+  />
+)}
+```
+
+## 08. 이미지 업로드 - storage 함수 API
+
+- 이미지 업로드 함수 구현
+
+**firebaseFunctions.js**
+
+```javascript
+export async function imageUpload(blob, date) {
+  const storageRef = firebase
+    .storage()
+    .ref()
+    .child("diary/" + date);
+  const snapshot = await storageRef.put(blob);
+  const imageUrl = await snapshot.ref.getDownloadURL();
+  blob.close();
+  return imageUrl;
+}
+```
+
+1. fimageUpload 함수에서는 AddPage.jsx에서 넘긴 blob과 date 값을 넘겨 받음
+2. firebase.storage().ref()로 계정 상의 storage 참조 후 하위 diary 폴더에 date 이름으로 사진 저장
+3. blob 데이터를 넘겨 최종 저장 및 어디에 저장되었는지 주소 호출 (getDownloadURL() 함수)
+
+**AddPage.jsx**
+
+```javascript
+const upload = async () => {
+  const currentUser = firebase.auth().currentUser;
+  let date = new Date();
+  let getTime = date.getTime();
+  let data = {
+    title: title,
+    author: currentUser.email,
+    desc: content,
+    image: image,
+    date: getTime,
+    uid: currentUser.uid,
+  };
+  const response = await fetch(imageUri);
+  const blob = await response.blob();
+  const imageUrl = await imageUpload(blob, getTime);
+  data.image = imageUrl;
+};
+
+const getImageUrl = async (imageData) => {
+  setImageUri(imageData.uri);
+};
+```
+
+- `fetch`와 `response.blob()`을 upload 함수로 옮김 -> 최종적으로 storage 함수에 blob 데이터와 이미지를 넘기는 형태
+
+## 09. 글, 이미지 동시 업로드
+
+- 업로드 후 입력된 글, 내용, 이미지 상태값을 모두 초기화
+
+**AddPage.jsx**
+
+```javascript
+const upload = async () => {
+  const currentUser = firebase.auth().currentUser;
+  let date = new Date();
+  let getTime = date.getTime();
+  let data = {
+    title: title,
+    author: currentUser.email,
+    desc: content,
+    image: image,
+    date: getTime,
+    uid: currentUser.uid,
+  };
+  const response = await fetch(imageUri);
+  const blob = await response.blob();
+  const imageUrl = await imageUpload(blob, getTime);
+  data.image = imageUrl;
+
+  let result = await addDiary(data);
+  if (result) {
+    Alert.alert("등록 완료");
+    setTitle("");
+    setContent("");
+    setImage(tempImage);
+    setImageUri("");
+  }
+};
+```
+
+- Input과 TextArea에 상태값과 동기화 필요 (상태 관리에 들어가는 데이터 실시간 반영)
+
+```javascript
+<Item regular style={styles.title}>
+  <Input
+    placeholder="다이어리 제목을 입력해주세요!"
+    style={{ fontSize: 13 }}
+		value={title}
+    onChangeText={(text) => setTitle(text)}
+  />
+</Item>
+<Form style={styles.contentLayout}>
+  <Textarea
+    rowSpan={5}
+    bordered
+    placeholder="내용을 입력해주세요"
+    style={styles.content}
+		value={content}
+    onChangeText={(text) => setContent(text)}
+  />
+</Form>
+```
+
+## 10. 로딩화면
+
+- 업로드 상태 퍼센테이지 상태바로 표현
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/152479894-ef629369-f15f-4ac0-8e3a-785d41e43a37.jpeg">
+</p>
+
+```javascript
+const [progress, setProgress] = useState(false);
+
+const upload = async () => {
+  setProgress(true);
+  const currentUser = firebase.auth().currentUser;
+  let date = new Date();
+  let getTime = date.getTime();
+  let data = {
+    title: title,
+    author: currentUser.email,
+    desc: content,
+    image: image,
+    date: getTime,
+    uid: currentUser.uid,
+  };
+  const response = await fetch(imageUri);
+  const blob = await response.blob();
+  const imageUrl = await imageUpload(blob, getTime);
+  data.image = imageUrl;
+
+  let result = await addDiary(data);
+  if (result) {
+    Alert.alert("등록 완료");
+    setTitle("");
+    setContent("");
+    setImage(tempImage);
+    setImageUri("");
+    setProgress(false);
+  } else {
+    setProgress(false);
+  }
+};
+...
+return (
+  <Container>
+    <HeaderComponent />
+    {progress == false ? null : (
+      <Image source={loading} style={styles.progress} />
+    )}
+    <Content>
+    ...
+```
+
+1. 업로드 시작 시 progress on
+2. 업로드 완료 시 progress off
+
+```javascript
+progress: {
+  width: 100,
+  height: 100,
+  borderRadius: 100,
+  position: 'absolute',
+  top: '50%',
+  alignSelf: 'center',
+  zIndex: 2,
+},
+```
+
+- `absolute`를 사용하여 주변 스타일 무시 (위치 직접 지정 필요)
+- `zIndex` 속성을 통해 모든 컴포넌트 위에 자리
+
+## 11. 글 가져오기
