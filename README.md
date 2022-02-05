@@ -46,6 +46,12 @@ DetailPage 구현 조건
 - SignInPage에서 상태관리를 통해 Loading 화면 관리
 ```
 
-## [4 주차 과제]()
+## [4 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2004/Homework04)
+
+```
+main 화면 구현
+
+- firebase에서 데이터 가져오기
+```
 
 ## [5 주차 과제]()

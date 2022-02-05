@@ -514,3 +514,48 @@ progress: {
 - `zIndex` 속성을 통해 모든 컴포넌트 위에 자리
 
 ## 11. 글 가져오기
+
+- 닉네임 저장
+
+**firebaseFunctions.js**
+
+```javascript
+export async function addDiary(content) {
+  try {
+    const db = firebase.firestore();
+    let userRef = await db.collection("users").doc(content.uid);
+    let data = await userRef.get().then((doc) => {
+      return doc.data();
+    });
+
+    content.author = data.nickName;
+
+    await db
+      .collection("diary")
+      .doc(content.date + "D")
+      .set(content);
+    return true;
+  } catch (err) {
+    Alert.alert("글 작성 실패 -> ", err.message);
+    return false;
+  }
+}
+```
+
+1. Cloud Store에 저장하고 있던 users 콜렉션에서 uid 조회
+2. 닉네임을 가져와 업로드할 데이터 author 값 대체
+
+- 이미지 용량 줄이기 (속도 개선)
+
+```javascript
+const pickImage = async () => {
+  let imageData = await ImgaePicker.launchImageLibraryAsync({
+    mediaTypes: ImgaePicker.MediaTypeOptions.All,
+    allowsEditing: true,
+    aspect: [4, 4],
+    quality: 0,
+  });
+
+  getImageUrl(imageData);
+};
+```
