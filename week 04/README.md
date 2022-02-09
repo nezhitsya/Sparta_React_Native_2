@@ -515,6 +515,10 @@ progress: {
 
 ## 11. 글 가져오기
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153145289-d4764379-cdf0-4103-b35f-07e4aea5c001.mov">
+</p>
+
 - 닉네임 저장
 
 **firebaseFunctions.js**

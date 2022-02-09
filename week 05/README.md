@@ -23,15 +23,35 @@
 
 **Cloud Firebase에서 특정 개수 게시글 출력**
 
+**MainPage.jsx**
+
 ```javascript
-export async function getData() {
+const [next, setNext] = useState(0);
+
+const readyData = async () => {
+  const data = await getData(setNext);
+  setData(data);
+};
+```
+
+**firebaseFunctions.js**
+
+```javascript
+export async function getData(setNext) {
   try {
-    const db = firebase.firestore();
-    const snapshot = await db.collection("diary").get();
     let data = [];
+    const db = firebase.firestore();
+    const first = db.collection("diary").orderBy("date", "desc").limit(5);
+    const snapshot = await first.get();
     snapshot.docs.map((doc) => {
       data.push(doc.data());
     });
+
+    let last;
+    if (snapshot.docs.length !== 0) {
+      last = snapshot.docs[snapshot.docs.length - 1];
+    }
+    setNext(last.data().date);
     return data;
   } catch (err) {
     return false;
