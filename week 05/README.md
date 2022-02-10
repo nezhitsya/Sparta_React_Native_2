@@ -270,3 +270,148 @@ return (
   ...
 )
 ```
+
+**DetailPage -> DB(comment)**
+
+1. 작성 시간 (date)
+2. 코멘트 (comment)
+3. 다이러리 아이디 (did)
+4. 작성자 아이디 (uid)
+
+**firebaseFunctions.js**
+
+- 댓글 컬렉션 생성 및 users 컬렉션 조회하여 사용자 닉네임 조회
+
+```javascript
+export async function addComment(comment) {
+  try {
+    const db = firebase.firestore();
+    let userRef = await db.collection("users").doc(comment.uid);
+    let data = await userRef.get().then((doc) => {
+      return doc.data();
+    });
+    comment.author = data.nickName;
+    await db
+      .collection("comment")
+      .doc(comment.data + "D")
+      .set(comment);
+    return true;
+  } catch (err) {
+    Alert.alert("댓글 작성 오류 -> ", err.message);
+    return false;
+  }
+}
+```
+
+## 댓글 상태 관리
+
+**firebaseFunctions.js**
+
+```javascript
+export async function getComment(did) {
+  const db = firebase.firestore();
+  let data = [];
+  let snapshot = await db.collection("comment").where("did", "==", did).get();
+  if (snapshot.empty) {
+    return 0;
+  } else {
+    snapshot.forEach((doc) => {
+      data.push(doc.data());
+    });
+    return data;
+  }
+}
+```
+
+- firebase의 where 절 사용
+
+```javascript
+// comment 컬렉션에 저장된 댓글 데이터 중 did 값이 DetailPage로부터 넘어온 값과 일치하는 데이터를 골라 조회하는 조건문
+let snapshot = await db.collection("comment").where("did", "==", did).get();
+```
+
+**DetailPage.jsx**
+
+```javascript
+const [comment, setComment] = useState([]);
+
+useEffect(() => {
+  navigation.setOptions({
+    title: content.title,
+    headerStyle: {
+      backgroundColor: "white",
+      shadowColor: "white",
+    },
+    headerTintColor: "black",
+    headerShown: "true",
+    headerBackTitleVisible: false,
+  });
+
+  commentLoad(content.date);
+}, []);
+
+const commentLoad = async (did) => {
+  let c = await getComment(did + "D");
+  if (c == 0) {
+  } else {
+    setComment(c);
+  }
+};
+
+return (
+  ...
+  <List>
+    {comment.map((c, i) => {
+      return <CommentComponent key={i} comment={c} />;
+    })}
+  </List>
+  ...
+)
+```
+
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153368958-3c7d916f-a6cc-44ae-86f2-18b1cb862221.mov">
+</p>
+
+- 댓글 등록 후 바로 출력
+
+**DetailPage.jsx**
+
+```javascript
+const commentFunc = async () => {
+  let date = new Date();
+  let getTime = date.getTime();
+  const currentUser = firebase.auth().currentUser;
+  let newComment = {
+    date: getTime,
+    comment: commentInput,
+    did: content.date + "D",
+    uid: currentUser.uid,
+  };
+
+  let result = await addComment(newComment);
+  if (result) {
+    Alert.alert("댓글 저장");
+    await setComment([...comment, newComment]);
+  }
+};
+```
+
+> 배열 + 배열을 위해 사용했던 스프레드 연산자를 통해 배열에 새 객체 추가 <br> 기존의 상태값은 보존하면서 새로운 값 추가 (데이터 불변성)
+
+## 08. 좋아요 기능 DB 구상
+
+- diary 게시글 안에 좋아요(likes) 리스트 삽입 (비관계형 데이터베이스의 장점 : 유연함)
+
+```
+diary -> doc -> field
+             -> likes -> doc -> field
+```
+
+1. 한 다이어리 글에 몇 명이 좋아요를 눌렀는지 축적될 내부의 likes zjffprtus
+2. 내가 좋아요를 누른 글은 빨간 하트가 처리되어야해 내가 likes 안에 있는지 확인
+
+## 09. 좋아요 기능 DB 저장
+
+1. 로그인한 사용자의 uid를
+2. 해당 diary의 likes 컬렉션에 저장
