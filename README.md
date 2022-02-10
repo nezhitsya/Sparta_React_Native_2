@@ -48,6 +48,10 @@ DetailPage 구현 조건
 
 ## [4 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2004/Homework04)
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153145661-8e710b33-c99d-4ab5-b1c9-4f1262a8a44b.mov">
+</p>
+
 ```
 main 화면 구현
 
