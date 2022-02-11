@@ -543,6 +543,10 @@ export async function getData(setNext, setData) {
 
 ## 10. 좋아요 매칭 및 해제
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153532118-7c26579d-23e6-46cf-a9ab-2dee086ffd95.mov">
+</p>
+
 - 좋아요 매칭
 
 **CardComponent.jsx**

@@ -58,4 +58,12 @@ main 화면 구현
 - firebase에서 데이터 가져오기
 ```
 
-## [5 주차 과제]()
+## [5 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2005/Homework05)
+
+```
+MyPage 최종 구성
+
+1. 작성한 게시글 개수 출력
+2. 좋아요 누른 개수 출력
+3. 앱을 몇 번 켰는지 카운트
+```
