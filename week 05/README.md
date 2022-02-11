@@ -415,3 +415,212 @@ diary -> doc -> field
 
 1. 로그인한 사용자의 uid를
 2. 해당 diary의 likes 컬렉션에 저장
+
+**MainPage.jsx**
+
+```javascript
+useEffect(() => {
+  navigation.addListener("beforeRemove", (e) => {
+    e.preventDefault();
+  });
+  readyData();
+}, []);
+
+const readyData = async () => {
+  const data = await getData(setNext);
+  setData(data);
+};
+```
+
+⬇︎
+
+```javascript
+useEffect(() => {
+  navigation.addListener("beforeRemove", (e) => {
+    e.preventDefault();
+  });
+  getData(setNext, setData);
+}, []);
+```
+
+- readyData() 함수를 useEffect 안으로 넣어 getDate()에 넘겨 관리
+
+**firebaseFunctions.js**
+
+```javascript
+export async function doLike(uid, did) {
+  try {
+    const db = firebase.firestore();
+    const date = new Date();
+    const getTime = date.getTime();
+    await db.collection("diary").doc(did).collection("likes").doc(uid).set({
+      date: getTime,
+    });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+```
+
+1. 넘겨받은 did로 다이어리 특정 게시글 탐색
+2. 내부 likes 컬렉션 생성 후 uid 이름으로 문서(doc) 생성
+3. 사용자가 좋아요를 누르면 uid 문서 이름으로 누적
+4. 언제 좋아요를 눌렀는지 날짜 데이터를 필드 값으로 저장
+
+> 문서는 같은 값 중복 체크 기능을 제공하여 같은 게시글을 여러 번 좋아요 눌러도 딱 한 번만 저장
+
+**CardComponent.jsx**
+
+```javascript
+const likeFunc = () => {
+  const currentUser = firebase.auth().currentUser;
+  const uid = currentUser.uid;
+  const did = content.date + "D";
+  let result = doLike(uid, did);
+  if (result) {
+    console.log("likes");
+  }
+};
+```
+
+1. 어떤 사용자가 눌렀는지 : `uid`
+2. 어떤 게시글에 좋아요를 눌렀는지 : `did`
+
+**firebaseFunctions**
+
+```javascript
+export async function getData(setNext, setData) {
+  try {
+    let data = [];
+    const db = firebase.firestore();
+    const first = db.collection("diary").orderBy("date", "desc").limit(5);
+    const snapshot = await first.get();
+    const currentUser = firebase.auth().currentUser;
+
+    let last;
+    if (snapshot.docs.length !== 0) {
+      last = snapshot.docs[snapshot.docs.length - 1];
+    }
+    setNext(last.data().date);
+
+    let count = 0;
+    let limit = snapshot.docs.length;
+
+    snapshot.docs.map(async (doc) => {
+      let d = doc.data();
+      const like = await db
+        .collection("diary")
+        .doc(d.date + "D")
+        .collection("likes")
+        .doc(currentUser.uid)
+        .get();
+      if (like.data() == undefined) {
+        d.like = false;
+      } else {
+        d.like = true;
+      }
+      count += 1;
+      data.push(d);
+      if (count == limit) {
+        setData(data);
+      }
+    });
+    return data;
+  } catch (err) {
+    return false;
+  }
+}
+```
+
+- 로그인 한 사용자가 어떤 게시글을 좋아요 눌렀는지 조회
+
+1. 어떤 문서(doc)에 likes 컬렉션의 누가 눌렀는지에 대해 게시글 출력
+2. 반복문을 돌린 map 함수 내부에서 또 한 번 조회
+3. 좋아요를 누른 적이 있다면 likes 변수에 값 저장
+4. 그렇지 않으면 undefined로 저장
+5. 밖으로 내보낼 게시글 데이터에 like 키값을 두고 눌렀으면 true, 아니면 flase
+
+## 10. 좋아요 매칭 및 해제
+
+- 좋아요 매칭
+
+**CardComponent.jsx**
+
+```javascript
+<Icon
+  name={content.like == true ? "heart" : "heart-outline"}
+  style={content.like == true ? styles.pink : styles.grey}
+  onPress={() => {
+    likeFunc();
+  }}
+/>
+```
+
+- 좋아요 해제
+
+**CardComponent.jsx**
+
+```javascript
+const [like, setLike] = useState(false);
+
+useEffect(() => {
+  if (content.like == true) {
+    setLike(true);
+  } else {
+    setLike(false);
+  }
+}, []);
+
+const likeFunc = () => {
+  const currentUser = firebase.auth().currentUser;
+  const uid = currentUser.uid;
+  const did = content.date + "D";
+  let result = doLike(uid, did);
+  if (result) {
+    if (like == true) {
+      setLike(false);
+    } else {
+      setLike(true);
+    }
+  }
+};
+```
+
+1. doLike 함수에 like 데이터를 넘겨 해제할 것인지, 좋아요 정보를 저장할 것인지 결정
+2. 좋아요 데이터에 변화가 있으면 상태를 변경시켜 화면에 출력
+
+**firebaseFunctions.jsx**
+
+```javascript
+export async function doLike(uid, did, like) {
+  try {
+    const db = firebase.firestore();
+    const date = new Date();
+    const getTime = date.getTime();
+
+    if (like == true) {
+      await db
+        .collection("diary")
+        .doc(did)
+        .collection("likes")
+        .doc(uid)
+        .delete();
+    } else {
+      await db.collection("diary").doc(did).collection("likes").doc(uid).set({
+        date: getTime,
+      });
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+```
+
+## Prologue - React Native Tip
+
+- 리액트 기본 기술 공부
+  - 근간이 리액트이기 때문에 리액트 기본기 다지기 중요
+
+> [리액트 네이티브 패키지 정리](https://github.com/jondot/awesome-react-native)
