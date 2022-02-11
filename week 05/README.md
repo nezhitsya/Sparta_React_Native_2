@@ -628,3 +628,49 @@ export async function doLike(uid, did, like) {
   - 근간이 리액트이기 때문에 리액트 기본기 다지기 중요
 
 > [리액트 네이티브 패키지 정리](https://github.com/jondot/awesome-react-native)
+
+> [코드 비교 사이트](https://www.diffchecker.com/)
+
+## 배포하기
+
+### 01. 배포 체크리스트
+
+1. 앱 로고
+2. 스플래스 스크린 (앱 시작 초기 화면)
+3. 앱 마켓에 올릴 설명 이미지
+
+### 02. 스플래시 스크린 / 로고
+
+> [온라인 포토샵](https://pixlr.com/kr/x/)
+
+### 03. 최종 앱 파일 생성
+
+1. Expo를 통한 최종 앱 파일 생성
+2. 구글 플레이 개발자 라이센스 가입 및 구입
+3. 구글 플레이 스토어에 앱 배포
+
+- PERMISSION 문제로 배포가 안되는 현상
+
+```
+"android": {
+  "package": "",
+  "versionCode": 1,
+  "config": {
+    "googleMobileAdsAppId": ""
+  },
+  "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+},
+```
+
+- 안드로이드 앱 빌드(생성) 명령어
+
+```
+expo build:android
+
+
+// ios
+expo build:ios
+
+> apk 파일 선택
+> expo 사이트에서 다운
+```
