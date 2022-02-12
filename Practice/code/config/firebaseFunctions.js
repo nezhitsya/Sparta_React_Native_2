@@ -1,50 +1,50 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
-import 'firebase/compat/storage';
-import { Alert, AsyncStorage } from 'react-native';
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import "firebase/compat/storage";
+import { Alert, AsyncStorage } from "react-native";
 
 export async function registration(nickName, email, password, navigation) {
   try {
     await firebase.auth().createUserWithEmailAndPassword(email, password);
     const currentUser = firebase.auth().currentUser;
     const db = firebase.firestore();
-    db.collection('users').doc(currentUser.uid).set({
+    db.collection("users").doc(currentUser.uid).set({
       email: currentUser.email,
       nickName: nickName,
     });
-    await AsyncStorage.setItem('session', email);
-    navigation.push('TabNavigator');
+    await AsyncStorage.setItem("session", email);
+    navigation.push("TabNavigator");
   } catch (err) {
-    Alert.alert('회원가입 실패 -> ', err.message);
+    Alert.alert("회원가입 실패 -> ", err.message);
   }
 }
 
 export async function signIn(email, password, navigation) {
   try {
     await firebase.auth().signInWithEmailAndPassword(email, password);
-    await AsyncStorage.setItem('session', email);
-    navigation.push('TabNavigator');
+    await AsyncStorage.setItem("session", email);
+    navigation.push("TabNavigator");
   } catch (err) {
-    Alert.alert('로그인 실패 -> ', err.message);
+    Alert.alert("로그인 실패 -> ", err.message);
   }
 }
 
 export async function logout(navigation) {
   try {
     const currentUser = firebase.auth().currentUser;
-    await AsyncStorage.removeItem('session');
+    await AsyncStorage.removeItem("session");
     await firebase.auth().signOut();
-    navigation.push('SignInPage');
+    navigation.push("SignInPage");
   } catch (err) {
-    Alert.alert('로그아웃 실패 -> ', err.message);
+    Alert.alert("로그아웃 실패 -> ", err.message);
   }
 }
 
 export async function addDiary(content) {
   try {
     const db = firebase.firestore();
-    let userRef = await db.collection('users').doc(content.uid);
+    let userRef = await db.collection("users").doc(content.uid);
     let data = await userRef.get().then((doc) => {
       return doc.data();
     });
@@ -52,12 +52,12 @@ export async function addDiary(content) {
     content.author = data.nickName;
 
     await db
-      .collection('diary')
-      .doc(content.date + 'D')
+      .collection("diary")
+      .doc(content.date + "D")
       .set(content);
     return true;
   } catch (err) {
-    Alert.alert('글 작성 실패 -> ', err.message);
+    Alert.alert("글 작성 실패 -> ", err.message);
     return false;
   }
 }
@@ -66,7 +66,7 @@ export async function imageUpload(blob, date) {
   const storageRef = firebase
     .storage()
     .ref()
-    .child('diary' + date);
+    .child("diary" + date);
   const snapshot = await storageRef.put(blob);
   const imageUrl = await snapshot.ref.getDownloadURL();
   blob.close();
@@ -77,7 +77,7 @@ export async function getData(setNext, setData) {
   try {
     let data = [];
     const db = firebase.firestore();
-    const first = db.collection('diary').orderBy('date', 'desc').limit(5);
+    const first = db.collection("diary").orderBy("date", "desc").limit(5);
     const snapshot = await first.get();
     const currentUser = firebase.auth().currentUser;
 
@@ -93,9 +93,9 @@ export async function getData(setNext, setData) {
     snapshot.docs.map(async (doc) => {
       let d = doc.data();
       const like = await db
-        .collection('diary')
-        .doc(d.date + 'D')
-        .collection('likes')
+        .collection("diary")
+        .doc(d.date + "D")
+        .collection("likes")
         .doc(currentUser.uid)
         .get();
       if (like.data() == undefined) {
@@ -120,8 +120,8 @@ export async function getNextData(nextDate, setNext) {
     let data = [];
     const db = firebase.firestore();
     const next = db
-      .collection('diary')
-      .orderBy('date', 'desc')
+      .collection("diary")
+      .orderBy("date", "desc")
       .startAfter(nextDate)
       .limit(5);
     const snapshot = await next.get();
@@ -146,18 +146,18 @@ export async function getNextData(nextDate, setNext) {
 export async function addComment(comment) {
   try {
     const db = firebase.firestore();
-    let userRef = await db.collection('users').doc(comment.uid);
+    let userRef = await db.collection("users").doc(comment.uid);
     let data = await userRef.get().then((doc) => {
       return doc.data();
     });
     comment.author = data.nickName;
     await db
-      .collection('comment')
-      .doc(comment.data + 'D')
+      .collection("comment")
+      .doc(comment.data + "D")
       .set(comment);
     return true;
   } catch (err) {
-    Alert.alert('댓글 작성 오류 -> ', err.message);
+    Alert.alert("댓글 작성 오류 -> ", err.message);
     return false;
   }
 }
@@ -165,7 +165,7 @@ export async function addComment(comment) {
 export async function getComment(did) {
   const db = firebase.firestore();
   let data = [];
-  let snapshot = await db.collection('comment').where('did', '==', did).get();
+  let snapshot = await db.collection("comment").where("did", "==", did).get();
   if (snapshot.empty) {
     return 0;
   } else {
@@ -184,13 +184,13 @@ export async function doLike(uid, did, like) {
 
     if (like == true) {
       await db
-        .collection('diary')
+        .collection("diary")
         .doc(did)
-        .collection('likes')
+        .collection("likes")
         .doc(uid)
         .delete();
     } else {
-      await db.collection('diary').doc(did).collection('likes').doc(uid).set({
+      await db.collection("diary").doc(did).collection("likes").doc(uid).set({
         date: getTime,
       });
     }
@@ -198,4 +198,15 @@ export async function doLike(uid, did, like) {
   } catch (error) {
     return false;
   }
+}
+
+export async function getProfile(setProfile) {
+  const db = firebase.firestore();
+  const currentUser = firebase.auth().currentUser;
+  let snapshot = await db.collection("users").doc(currentUser.uid);
+  let data = await snapshot.get().then((doc) => {
+    return doc.data();
+  });
+  setProfile(data);
+  return data;
 }
