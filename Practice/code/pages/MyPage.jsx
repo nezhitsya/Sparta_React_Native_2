@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Alert,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
+} from "react-native";
 import { Col, Row, Grid } from "react-native-easy-grid";
 import { Container, Content, Thumbnail } from "native-base";
-import firebase from "firebase/compat/app";
-import "firebase/compat/auth";
 import {
   logout,
   getData,
   getNextData,
   getProfile,
+  getCommentCount,
+  getDataCount,
 } from "../config/firebaseFunctions";
 import HeaderComponent from "../components/HeaderComponent";
 import ImageComponent from "../components/ImageComponent";
@@ -19,7 +26,10 @@ const my = require("../assets/my.png");
 export default function MyPage({ navigation }) {
   const [data, setData] = useState([]);
   const [next, setNext] = useState(0);
+  const [dataCount, setDataCount] = useState("");
+  const [commentCount, setCommentCount] = useState("");
   const [profile, setProfile] = useState([]);
+
   const logoutFunc = () => {
     logout(navigation);
   };
@@ -30,40 +40,64 @@ export default function MyPage({ navigation }) {
     });
     getData(setNext, setData);
     getProfile(setProfile);
+    getDataCount(setDataCount);
+    getCommentCount(setCommentCount);
   }, []);
 
   return (
     <Container>
-      <HeaderComponent />
-      <Content>
-        <Col>
-          <Thumbnail large source={my} style={styles.image} />
-          <Text style={styles.title}>{profile.nickName}</Text>
-          <Text style={styles.email}>{profile.email}</Text>
-          <TouchableOpacity style={{ marginTop: 20 }} onPress={logoutFunc}>
-            <Text style={styles.logout}>LogOut</Text>
-          </TouchableOpacity>
-        </Col>
-        <Grid style={{ marginTop: 20 }}>
-          <Col size={3} style={{ alignItems: "center" }}>
-            <Text style={styles.category}>작성한 글</Text>
-            <Text style={styles.categoryContent}>7</Text>
-          </Col>
-          <Col size={3} style={{ alignItems: "center" }}>
-            <Text style={styles.category}>작성한 댓글</Text>
-            <Text style={styles.categoryContent}>21</Text>
-          </Col>
-          <Col size={3} style={{ alignItems: "center" }}>
-            <Text style={styles.category}>방문 횟수</Text>
-            <Text style={styles.categoryContent}>321</Text>
-          </Col>
-        </Grid>
-        <Grid style={styles.imageContainer}>
-          {data.map((content, i) => {
-            return <ImageComponent image={content.image} key={i} />;
-          })}
-        </Grid>
-      </Content>
+      <HeaderComponent onPress={logoutFunc} />
+      {data.length == 0 ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <FlatList
+          data={data}
+          ListHeaderComponent={() => {
+            return (
+              <Content>
+                <Col>
+                  <Thumbnail large source={my} style={styles.image} />
+                  <Text style={styles.title}>{profile.nickName}</Text>
+                  <Text style={styles.email}>{profile.email}</Text>
+                  <TouchableOpacity
+                    style={{ marginTop: 20 }}
+                    onPress={logoutFunc}>
+                    <Text style={styles.logout}>LogOut</Text>
+                  </TouchableOpacity>
+                </Col>
+                <Grid style={{ marginTop: 20, marginBottom: 10 }}>
+                  <Col size={3} style={{ alignItems: "center" }}>
+                    <Text style={styles.category}>작성한 글</Text>
+                    <Text style={styles.categoryContent}>{dataCount}</Text>
+                  </Col>
+                  <Col size={3} style={{ alignItems: "center" }}>
+                    <Text style={styles.category}>작성한 댓글</Text>
+                    <Text style={styles.categoryContent}>{commentCount}</Text>
+                  </Col>
+                  <Col size={3} style={{ alignItems: "center" }}>
+                    <Text style={styles.category}>방문 횟수</Text>
+                    <Text style={styles.categoryContent}>321</Text>
+                  </Col>
+                </Grid>
+              </Content>
+            );
+          }}
+          onEndReachedThreshold={0}
+          onEndReached={async () => {
+            let nextData = await getNextData(next, setNext);
+            if (nextData == 0) {
+              Alert.alert("마지막 글입니다.");
+            } else {
+              let newData = [...data, ...nextData];
+              await setData(newData);
+            }
+          }}
+          renderItem={(data) => {
+            return <ImageComponent image={data.item.image} />;
+          }}
+          numColumns={3}
+        />
+      )}
     </Container>
   );
 }

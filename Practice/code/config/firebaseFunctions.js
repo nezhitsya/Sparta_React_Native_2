@@ -210,3 +210,31 @@ export async function getProfile(setProfile) {
   setProfile(data);
   return data;
 }
+
+export async function getDataCount(setDataCount) {
+  const db = firebase.firestore();
+  const snapshot = await db.collection("diary").orderBy("date", "desc").get();
+  if (snapshot.empty) {
+    setDataCount(0);
+    return 0;
+  } else {
+    setDataCount(snapshot.docs.length);
+    return snapshot.docs.length;
+  }
+}
+
+export async function getCommentCount(setCommentCount) {
+  const db = firebase.firestore();
+  const currentUser = firebase.auth().currentUser;
+  let snapshot = await db
+    .collection("comment")
+    .where("uid", "==", currentUser.uid)
+    .get();
+  if (snapshot.empty) {
+    setCommentCount(0);
+    return 0;
+  } else {
+    setCommentCount(snapshot.docs.length);
+    return snapshot.docs.length;
+  }
+}
