@@ -1,7 +1,7 @@
-# [MyPage]()
+# [MyPage](https://velog.io/@nezhitsya/스파르타-코딩-클럽-개발일지-5-nmxoo84m)
 
 <p align="center">
-  <img width="300" src="">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153816368-0f46ed03-1148-46ed-88e6-d157b37706c3.jpeg">
 </p>
 
 ## 라이브러리
@@ -29,6 +29,7 @@ const [next, setNext] = useState(0);
 const [dataCount, setDataCount] = useState("");
 const [commentCount, setCommentCount] = useState("");
 const [profile, setProfile] = useState([]);
+const [AppRunCnt, setAppRunCnt] = useState("");
 
 useEffect(() => {
   navigation.addListener("beforeRemove", (e) => {
@@ -38,7 +39,32 @@ useEffect(() => {
   getProfile(setProfile);
   getDataCount(setDataCount);
   getCommentCount(setCommentCount);
+  getAppRunCnt();
 }, []);
+```
+
+- 앱 구동 횟수
+
+```javascript
+const getAppRunCnt = async () => {
+  let cnt = await AsyncStorage.getItem("AppRunCnt");
+  if (cnt == null) {
+    AsyncStorage.setItem("AppRunCnt", "1");
+    let cnt2 = await AsyncStorage.getItem("AppRunCnt");
+    console.log(cnt2);
+    setAppRunCnt(cnt2);
+  } else {
+    try {
+      const sum = Number(cnt) + 1;
+      await AsyncStorage.removeItem("AppRunCnt");
+      const result = await AsyncStorage.setItem("AppRunCnt", String(sum));
+      let cnt2 = await AsyncStorage.getItem("AppRunCnt");
+      setAppRunCnt(cnt2);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
 ```
 
 **firebaseFunctions.js**

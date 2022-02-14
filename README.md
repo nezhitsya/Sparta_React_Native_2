@@ -60,6 +60,10 @@ main 화면 구현
 
 ## [5 주차 과제](https://github.com/nezhitsya/Sparta_React_Native_2/tree/master/week%2005/Homework05)
 
+<p align="center">
+  <img width="300" src="https://user-images.githubusercontent.com/60697742/153816368-0f46ed03-1148-46ed-88e6-d157b37706c3.jpeg">
+</p>
+
 ```
 MyPage 최종 구성
 
